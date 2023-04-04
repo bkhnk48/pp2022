@@ -24,8 +24,8 @@ package lab001.simulations.hh;
 import org.car2x.veins.nodes.RSU;
 import org.car2x.veins.nodes.Scenario;
 import org.car2x.veins.nodes.Car;
-import lab001.veins_inet.IPerson;
-import lab001.veins_inet.VeinsInetCar;
+import lab001.veins_inet.graph.IPerson;
+import lab001.veins_inet.veins_inet_base.VeinsInetCar;
 //import inet.physicallayer.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 
 network myHospitalNetwork extends Scenario

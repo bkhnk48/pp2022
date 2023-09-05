@@ -358,7 +358,7 @@ void Djisktra::getItineraries(std::string itineraryFile){
 }
 
 std::string Djisktra::getName(){
-    return "Objective: Soonest time";
+    return "Objective: Djisktra.cc - Soonest time";
 }
 
 void Djisktra::getSupplyAndDisposalLocation(std::string fileName){

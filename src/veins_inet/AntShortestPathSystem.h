@@ -80,10 +80,10 @@ private:
     double heuInfo(int, int);
     double pheromone(int, int);
     virtual double diffPheromone(double);
-    std::vector<int> availNeighbours(int);
+    std::vector<int> availNeighbours(int, int);
     virtual void updateTrails(std::map<int, std::vector<int>>&,
             std::map<int, double>&);
-    virtual void goAnt(int, int, std::vector<int>&);
+    virtual void goAnt(int, int, int, int, std::vector<int>&);
     virtual double calcTourLength(std::vector<int>&);
     bool isCyclic(int, const std::vector<int>&);
     std::unordered_map<AdaptiveSystem::Edge, double, edgeHash> edge2phero;

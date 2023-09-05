@@ -32,7 +32,8 @@
 //#include "HarmfulnessDijkstra.h"
 //#include "DecisionDijkstra.h"
 //#include "LatencyEmergencyTime.h"
-#include "AntShortestPathSystem.h"
+//#include "AntShortestPathSystem.h"
+#include "NishidaDStarLite.h"
 using namespace omnetpp;
 
 namespace veins {

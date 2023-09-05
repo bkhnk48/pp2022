@@ -48,6 +48,7 @@ OBJS = \
     $O/veins_inet/IPerson.o \
     $O/veins_inet/jute.o \
     $O/veins_inet/LatencyEmergencyTime.o \
+    $O/veins_inet/NishidaDStarLite.o \
     $O/veins_inet/RouteDirection.o \
     $O/veins_inet/RSUControlApp.o \
     $O/veins_inet/StateOfAGV.o \

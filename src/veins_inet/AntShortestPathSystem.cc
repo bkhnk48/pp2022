@@ -129,7 +129,7 @@ std::vector<int> AntShortestPathSystem::path(int start, int end)
         {
             // This trace will be used by this ant to store its node sequence
             std::vector<int> antTrace;
-            goAnt(start, end, antTrace);
+            goAnt(start, -1, end, j, antTrace);//first time call goAnt, use -1 to imply that ACO could choose any adj of start at will
 
             if(antTrace.size() > 1 && antTrace.front() == start
                     && antTrace.back() == end)
@@ -326,7 +326,7 @@ void AntShortestPathSystem::updateTrails(std::map<int, std::vector<int>>& antTra
  * @param end Path's destination
  * @param trace Container where path's nodes will be stored
  */
-void AntShortestPathSystem::goAnt(int start, int end, std::vector<int>& trace)
+void AntShortestPathSystem::goAnt(int start, int adj, int end, int offset, std::vector<int>& trace)
 {
     // Detect cycles and give up this attempt
     if(isCyclic(start, trace))
@@ -342,7 +342,7 @@ void AntShortestPathSystem::goAnt(int start, int end, std::vector<int>& trace)
     }
 
     // Get available physical neighbours
-    std::vector<int> neighs = availNeighbours(start);
+    std::vector<int> neighs = availNeighbours(start, adj);
     double probs[neighs.size()];
     int index = 0;
     // Produce a transition probability to each one
@@ -353,16 +353,17 @@ void AntShortestPathSystem::goAnt(int start, int end, std::vector<int>& trace)
     double value = distro(gen);
     // Sort probabilities in range [0, 1] and use a uniform dice to
     // pick up an index domain
-    index = 0; double sum = 0;
-    for(; index < (int)neighs.size(); ++index)
+    index = offset; double sum = 0;
+    int size = (int)neighs.size();
+    for(; (index % size) < size; ++index)
     {
-        sum += probs[index];
+        sum += probs[(index % size)];
         if(value <= sum)
             break;
     }
 
     // This index belongs to the chosen neighbour
-    int chosenNeighbour = (neighs.size() > 0) ? neighs[index] : -1;
+    int chosenNeighbour = (neighs.size() > 0) ? neighs[(index % size)] : -1;
     if(chosenNeighbour == -1)
     {
         // No available neighbour found, so give up
@@ -372,7 +373,8 @@ void AntShortestPathSystem::goAnt(int start, int end, std::vector<int>& trace)
 
     // Recurse to the next neighbour
     trace.push_back(start);
-    goAnt(chosenNeighbour, end, trace);
+    int newAdj = trace[trace.size() - 1];
+    goAnt(chosenNeighbour, newAdj, end, offset, trace);
 }
 
 /**
@@ -483,20 +485,23 @@ double AntShortestPathSystem::pheromone(int edgeStart, int edgeEnd)
  * @param node The input node
  * @return std::vector<int> Container with nodes
  */
-std::vector<int> AntShortestPathSystem::availNeighbours(int node)
+std::vector<int> AntShortestPathSystem::availNeighbours(int node, int back)
 {
     std::vector<int> neighbours;
-    //std::vector<std::string> traces;
+    std::vector<std::string> traces;
 
     // Find all edges that start from the input node and return its
     // other endpoints
     std::for_each(edge2phero.cbegin(), edge2phero.cend(),
-            [&neighbours, //&traces,
+            [&neighbours,
+             &traces, back,
                  node](std::pair<Edge, double> pair)
             {
-                if(pair.first.edgeStart == node){
+                if(pair.first.edgeStart == node
+                        && pair.first.edgeEnd != back
+                ){
                     neighbours.push_back(pair.first.edgeEnd);
-                    //traces.push_back(pair.first.dst);
+                    traces.push_back(pair.first.dst);
                 }
             });
 

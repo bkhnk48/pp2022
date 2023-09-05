@@ -1,0 +1,5 @@
+g++ -g -p -c Point.cpp
+g++ -g -p -c Shape.cpp
+g++ -g -p -c TimeExpandedNode.cpp
+g++ -g -p main.cpp -o b.o
+gdb b.o

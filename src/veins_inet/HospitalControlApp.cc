@@ -39,10 +39,11 @@ void HospitalControlApp::initialize(int stage)
         sendBeacon= new cMessage("send Beacon");
         graph = new Graph();
         djisktra = //new LatencyEmergencyTime();
-                new AntShortestPathSystem();
+                //new AntShortestPathSystem();
                 //new DecisionDijkstra();
                     //new HarmfulnessDijkstra();
                     //new ArrivalDijkstra();
+                new NishidaDStarLite();
                    //new Djisktra();
         this->readCrossing();
     }

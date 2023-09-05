@@ -16,6 +16,10 @@
 #ifndef VEINS_GRAPH_H_
 #define VEINS_GRAPH_H_
 
+#include <tuple>
+#include <list>
+#include <utility>
+#include <math.h>
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -26,7 +30,7 @@
 #include <string.h>
 #include <vector>
 #include <algorithm>
-#include <queue> // To set up priority queue
+#include <queue>      // To set up priority queue
 #include <functional> // To use std::greater<T> -> This will prove to be useful in picking the minimum weight
 
 //typedef std::tuple<double, std::string, int, std::string> Quad;
@@ -211,6 +215,7 @@ private:
 };
 ///usr/include/c++/9/bits/stl_function.h:386:20: error: no match for ‘operator<’ (operand types are ‘const Quad’ and ‘const Quad’)
 
+
 class AGV {
 public:
     std::string id;
@@ -220,6 +225,11 @@ public:
     double atStation = 0;
     double ratio = 1.1;
     double now = 0;
+    double travellingTime = 0;
+    bool allowMovement = true;
+    double speed = 0;
+    double waitingTimeEdge = 0;
+    int liveUpdateWaitingTimeEdge = 1;
     int indexOfRoute = -1;
     double *ShortestPath;
     double expectedTimeAtStation = -1;
@@ -227,17 +237,17 @@ public:
     double MIN_EMERGENCY = DBL_MAX;
     double createdTime = -1;
     std::vector<std::string> traces;
-    std::vector <bool> visitedVertex;
-    std::vector <bool> visitedEmergencyVertex;
-    std::priority_queue<Quad, std::vector<Quad>, std::greater<Quad> > PQ; // Set up priority queue
-    //std::priority_queue<Quad, std::vector<Quad>, Comparison > PQ1; // Set up priority queue
-    //std::priority_queue<Quad, std::vector<Quad>, std::greater<Quad> > PQ_MIN; // Set up priority queue for min cost
-    std::vector<Quad> allMinOptions;//Set up paths within min cost
-    //std::priority_queue<Quad> PQ;
-    void memset(int numVertices, double initSource = DBL_MAX){
-        if(!initialized){
-            ShortestPath = (double *)malloc(numVertices*sizeof(double));
-            for(int i = 0; i < numVertices; i++){
+    std::vector<bool> visitedVertex;
+    std::vector<bool> visitedEmergencyVertex;
+    std::priority_queue<Quad, std::vector<Quad>, std::greater<Quad>> PQ; // Set up priority queue
+    // std::priority_queue<Quad, std::vector<Quad>, Comparison > PQ1; // Set up priority queue
+    // std::priority_queue<Quad, std::vector<Quad>, std::greater<Quad> > PQ_MIN; // Set up priority queue for min cost
+    std::vector<Quad> allMinOptions; // Set up paths within min cost
+    // std::priority_queue<Quad> PQ;
+    void memset(int numVertices, double initSource = DBL_MAX) {
+        if (!initialized) {
+            ShortestPath = (double*) malloc(numVertices * sizeof(double));
+            for (int i = 0; i < numVertices; i++) {
                 ShortestPath[i] = initSource;
                 traces.push_back("");
                 visitedVertex.push_back(false);
@@ -247,27 +257,28 @@ public:
             return;
         }
     }
-    void init(int numVertices, double initSource = DBL_MAX){
+    void init(int numVertices, double initSource = DBL_MAX) {
         memset(numVertices, initSource);
 
         MIN_LATENCY = DBL_MAX;
         MIN_EMERGENCY = DBL_MAX;
 
-        for(int i = 0; i < numVertices; i++){
+        for (int i = 0; i < numVertices; i++) {
             ShortestPath[i] = initSource;
             traces[i].clear();
             visitedVertex[i] = false;
             visitedEmergencyVertex[i] = false;
         }
     }
-    bool isInitialized(){
+    bool isInitialized() {
         return initialized;
     }
     int count = 0;
+
 private:
     bool initialized = false;
-
 };
+
 
 class Edge {
 private:
@@ -678,6 +689,10 @@ private:
         std::string str_line;
         std::ifstream MyReadFile("input.txt");
         while (getline(MyReadFile, str_line)) {
+            if(this->vertices == NULL){
+                int i = 0;
+                i++;
+            }
             readLine(str_line);
         }
         MyReadFile.close();
@@ -685,6 +700,10 @@ private:
     }
 public:
     Graph() {
+        if(this->vertices == NULL){
+            int i = 0;
+            i++;
+        }
         readFile();
     }
 
@@ -725,6 +744,41 @@ public:
         return cur;
     }
 //    virtual ~Graph();
+};
+
+typedef std::pair<double, double> Point;
+typedef std::tuple<Point, Point, double> Shape;
+typedef std::pair<int, int> Index;
+typedef std::tuple<std::string, int, Shape, std::vector<Index>,
+        std::vector<Index>, int> TimeSpace;
+typedef std::pair<int, int> Node;
+typedef std::vector<Node> AllUpdateNode;
+
+typedef struct Objective {
+    std::string name;
+    double earliness;
+    double tardiness;
+    double alpha;
+    double beta;
+    double gamma;
+} Objective;
+
+void assignNeighbors(std::vector<TimeSpace> *all, int index);
+std::vector<TimeSpace>* readAllParts(std::string fileName, double lengthPath);
+bool checkValid(std::vector<TimeSpace> *all, double lengthPath, double epsilon);
+
+
+class TimeSpaceGraph {
+private:
+    std::vector<std::vector<TimeSpace>> *graph;
+    double lengthPath, H, dt, V;
+
+public:
+    TimeSpaceGraph(double lengthPath, double H, double V);
+    void setGraph(std::vector<TimeSpace> *init);
+    std::vector<std::vector<TimeSpace>>* getGraph();
+    double getDt();
+    AllUpdateNode updateEdge(std::string name, double waitingTime);
 };
 
 #endif /* VEINS_GRAPH_H_ */
